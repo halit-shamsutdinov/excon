@@ -1,6 +1,6 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'bundler/setup'
-require 'excon'
+require_relative '../lib/excon'
 require 'delorean'
 require 'open4'
 

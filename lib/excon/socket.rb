@@ -119,19 +119,24 @@ module Excon
         begin
           sockaddr = ::Socket.sockaddr_in(port, ip)
 
-          socket = ::Socket.new(a_family, s_type, 0)
-
-          if @data[:reuseaddr]
-            socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, true)
-            if defined?(::Socket::Constants::SO_REUSEPORT)
-              socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, true)
-            end
-          end
-
-          if @nonblock
-            socket.connect_nonblock(sockaddr)
+          if @data[:socks_server] && @data[:socks_port]
+            addr = TCPSocket::SOCKSConnectionPeerAddress.new( @data[:socks_server],@data[:socks_port], ip)
+            socket = TCPSocket.new(addr,port)
           else
-            socket.connect(sockaddr)
+            socket = ::Socket.new(a_family, s_type, 0)
+
+            if @data[:reuseaddr]
+              socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, true)
+              if defined?(::Socket::Constants::SO_REUSEPORT)
+                socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, true)
+              end
+            end
+
+            if @nonblock
+              socket.connect_nonblock(sockaddr)
+            else
+              socket.connect(sockaddr)
+            end
           end
           @socket = socket
         rescue Errno::EINPROGRESS
