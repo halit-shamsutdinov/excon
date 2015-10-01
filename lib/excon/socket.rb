@@ -1,3 +1,5 @@
+require 'socksify'
+
 module Excon
   class Socket
     include Utils
